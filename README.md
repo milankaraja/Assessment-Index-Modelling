@@ -1,4 +1,4 @@
-# By Vineeth Hari Naik
+# By Vineeth Hari Naik for Solactive
 
 
 # Assessment Index Modelling
