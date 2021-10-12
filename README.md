@@ -1,3 +1,6 @@
+# By Vineeth Hari Naik
+
+
 # Assessment Index Modelling
 
 This Code Assessment simulates the scenario of building an index model based on a given guideline. 
