@@ -11,7 +11,6 @@ import datetime as dt
 from pandas.tseries.offsets import BDay
 
 
-
 class IndexModel:
     def __init__(self) -> None:
         # To be implemented
@@ -19,15 +18,15 @@ class IndexModel:
     def load_process_data(self,):
         file_stock_prices = 'C:\\Users\\vinee\\OneDrive\\Documents\\Assessment-Index-Modelling-master\\data_sources\\stock_prices.csv'
         stock_prices = pd.read_csv(file_stock_prices, parse_dates=['Date'])
-        stock_prices["Date_forgroup"]=stock_prices["Date"]
         stock_prices["Date"]= pd.to_datetime(stock_prices ["Date"], errors='coerce')
         #stock_prices["Date"]= pd.to_datetime(stock_prices ["Date"],format='%Y-%m-%d', errors='coerce')
+        stock_prices.dropna()
+        stock_prices["Date_forgroup"]=stock_prices["Date"]
         stock_prices.set_index('Date', inplace=True)
         return stock_prices
     def calc_index_level(self, start_date: dt.date, end_date: dt.date) -> None:
         # To be implemented
         y = self.load_process_data()
-        #y = y[(y.index >= start_date) & (y.index <= end_date)]
         stockp_firstbd = y.groupby(pd.Grouper(freq='M')).first()
         stockp_lastbd = y.groupby(pd.Grouper(freq='M')).last()
         stockp_firstbd.set_index('Date_forgroup', inplace=True)
@@ -44,34 +43,37 @@ class IndexModel:
                 if stockp_lastbd.index[i] < d <= stockp_lastbd.index[i+1]:
                     return Top3StocksLBD[i]
         def get_Top3_prices(d):
-            x = get_Top3_names(d)
-            return y.loc[d,[x[0],x[1],x[2]]]
+            if d > stockp_lastbd.index[0]: 
+                x = get_Top3_names(d)
+                return y.loc[d,[x[0],x[1],x[2]]]
+            else:
+                return np.array([100,100,100])
         def quantity(d):
             if d <= stockp_lastbd.index[0]:
-                return np.array([0,0,0])
+                return np.array([0.5,0.25,0.25])
             #elif: d= 
             else:
                 for i in range(0,len(Top3StocksLBD)):
                     if stockp_lastbd.index[i] < d <= stockp_lastbd.index[i+1]:
-                        
-                        return np.array([0.5,0.25,0.25])*Top3Index(stockp_lastbd.index[i])/get_Top3_prices(d)
+                        return np.array(Top3Index(stockp_lastbd.index[i])*np.array([0.5,0.25,0.25])/get_Top3_prices(stockp_lastbd.index[i]))
         def Top3Index(d):
+            
             if d <= stockp_lastbd.index[0]:
                 return 100
             else:
+                prices= get_Top3_prices(d)
                 for i in range(0,len(Top3StocksLBD)):
                     if stockp_lastbd.index[i] < d <= stockp_lastbd.index[i+1]:
-                        amt = sum(x * y for x, y in zip(quantity(stockp_lastbd.index[i] ), get_Top3_prices(d)))
-                        amt2 = amt*np.array([0.5,0.25,0.25])
-                        weights2 = amt2/get_Top3_prices(d)
-                        return sum(x * y for x, y in zip(weights2, get_Top3_prices(d)))
-            # stockp_firstbd.index[i+1]
-            
-                
-        y["Index"]= y["Date_forgroup"].apply(Top3Index)
+                        return sum(x * y for x, y in zip(quantity(stockp_firstbd.index[i]) ,prices ))
         
+        
+
+        y["Index"] = y["Date_forgroup"].apply(Top3Index)
         y["Weights"]= y["Date_forgroup"].apply(quantity)
+                
+                
         return y["Index"]
+                                   
 
     def export_values(self, file_name: str) -> None:
 
