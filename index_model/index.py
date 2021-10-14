@@ -19,6 +19,7 @@ class IndexModel:
         file_stock_prices = 'C:\\Users\\vinee\\OneDrive\\Documents\\Assessment-Index-Modelling-master\\data_sources\\stock_prices.csv'
         stock_prices = pd.read_csv(file_stock_prices, parse_dates=['Date'])
         stock_prices["Date"]= pd.to_datetime(stock_prices ["Date"], errors='coerce')
+        stock_prices = stock_prices.sort_index()
         #stock_prices["Date"]= pd.to_datetime(stock_prices ["Date"],format='%Y-%m-%d', errors='coerce')
         stock_prices.dropna()
         stock_prices["Date_forgroup"]=stock_prices["Date"]
