@@ -56,7 +56,7 @@ class IndexModel:
             else:
                 for i in range(0,len(Top3StocksLBD)):
                     if stockp_lastbd.index[i] < d <= stockp_lastbd.index[i+1]:
-                        return np.array(Top3Index(stockp_lastbd.index[i])*np.array([0.5,0.25,0.25])/get_Top3_prices(stockp_lastbd.index[i]))
+                        return np.array(Top3Index(stockp_firstbd.index[i])*np.array([0.5,0.25,0.25])/get_Top3_prices(stockp_firstbd.index[i]))
         def Top3Index(d):
             
             if d <= stockp_lastbd.index[0]:
